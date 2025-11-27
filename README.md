@@ -25,11 +25,10 @@ A mobile application built with Kotlin that showcases GitHub user profiles and r
 
 ### Installation
 
-1. Clone the repository
-2. Open the project in Android Studio
-3. Sync Gradle files
-4. Run the application
+1. Clone the repository:
 
+   ```bash
+   git clone <repository-url>
 ## Usage
 
 Launch the app and enter any GitHub username to view their profile and repositories.
