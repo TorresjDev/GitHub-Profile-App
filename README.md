@@ -32,5 +32,5 @@ A mobile application built with Kotlin that showcases GitHub user profiles and r
 
 ## Usage
 
-Launch the app and enter a GitHub username to get your latest insights on your GitHub profile and repositories.
+Launch the app and enter any GitHub username to view their profile and repositories.
 
