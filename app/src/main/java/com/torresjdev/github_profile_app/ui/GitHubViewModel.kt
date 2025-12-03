@@ -10,8 +10,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.io.IOException
 import retrofit2.HttpException
+import java.io.IOException
 
 sealed interface GitHubUiState {
     data class Success(val profile: GitHubProfile, val repos: List<GitHubRepo>) : GitHubUiState
