@@ -7,7 +7,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -24,15 +23,15 @@ class MainActivity : ComponentActivity() {
             GitHubProfileAppTheme {
                 val viewModel: GitHubViewModel = viewModel()
                 val uiState by viewModel.uiState.collectAsState()
-
-                LaunchedEffect(Unit) {
-                    viewModel.getGitHubData("torresjdev")
-                }
+                val searchQuery by viewModel.searchQuery.collectAsState()
 
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     HomeScreen(
                         gitHubUiState = uiState,
-                        retryAction = { viewModel.getGitHubData("torresjdev") },
+                        searchQuery = searchQuery,
+                        onSearchQueryChange = { viewModel.updateSearchQuery(it) },
+                        onSearch = { viewModel.searchUser() },
+                        retryAction = { viewModel.searchUser() },
                         modifier = Modifier.padding(innerPadding)
                     )
                 }

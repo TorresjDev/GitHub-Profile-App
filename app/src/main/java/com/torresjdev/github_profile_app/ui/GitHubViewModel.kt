@@ -26,6 +26,24 @@ class GitHubViewModel : ViewModel() {
     private val _uiState = MutableStateFlow<GitHubUiState>(GitHubUiState.Loading)
     val uiState: StateFlow<GitHubUiState> = _uiState.asStateFlow()
 
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
+
+    init {
+        getGitHubData("torresjdev")
+    }
+
+    fun updateSearchQuery(query: String) {
+        _searchQuery.value = query
+    }
+
+    fun searchUser() {
+        val query = _searchQuery.value.trim()
+        if (query.isNotEmpty()) {
+            getGitHubData(query)
+        }
+    }
+
     fun getGitHubData(username: String) {
         viewModelScope.launch {
             _uiState.value = GitHubUiState.Loading
