@@ -29,10 +29,6 @@ class GitHubViewModel : ViewModel() {
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
-    init {
-        getGitHubData("torresjdev")
-    }
-
     fun updateSearchQuery(query: String) {
         _searchQuery.value = query
     }
