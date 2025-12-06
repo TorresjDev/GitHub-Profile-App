@@ -29,6 +29,19 @@ sealed interface GitHubUiState {
 }
 
 /**
+ * Enum representing the available sorting options for repositories.
+ * Used to control the display order of repositories in the profile view.
+ */
+enum class RepoSortOption {
+    /** Sort by star count (highest first) */
+    STARS,
+    /** Sort by last update date (most recent first) */
+    RECENT,
+    /** Sort alphabetically by repository name (A-Z) */
+    NAME
+}
+
+/**
  * Represents the view model for the GitHub UI.
  * It is responsible for managing the data and state for the UI.
  * @constructor Creates a new instance of GitHubViewModel.
@@ -46,6 +59,10 @@ class GitHubViewModel : ViewModel() {
     private val _isDarkMode = MutableStateFlow(false)
     val isDarkMode: StateFlow<Boolean> = _isDarkMode.asStateFlow()
 
+    // Repository sort option state (default: sort by stars)
+    private val _sortOption = MutableStateFlow(RepoSortOption.STARS)
+    val sortOption: StateFlow<RepoSortOption> = _sortOption.asStateFlow()
+
     // Toggle dark mode
     fun toggleDarkMode() {
         _isDarkMode.value = !_isDarkMode.value
@@ -54,6 +71,14 @@ class GitHubViewModel : ViewModel() {
     // Update search query
     fun updateSearchQuery(query: String) {
         _searchQuery.value = query
+    }
+
+    /**
+     * Updates the repository sort option.
+     * @param option The new sort option to apply.
+     */
+    fun updateSortOption(option: RepoSortOption) {
+        _sortOption.value = option
     }
 
     // Search for user

@@ -36,6 +36,7 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val uiState by viewModel.uiState.collectAsState()
                 val searchQuery by viewModel.searchQuery.collectAsState()
+                val sortOption by viewModel.sortOption.collectAsState()
 
                 /**
                  * Scaffold is a composable that provides a basic structure for other composables.
@@ -85,7 +86,9 @@ class MainActivity : ComponentActivity() {
                                 onSearch = { viewModel.searchUser() },
                                 onRetry = { viewModel.searchUser() },
                                 isDarkMode = isDarkMode,
-                                onToggleDarkMode = { viewModel.toggleDarkMode() }
+                                onToggleDarkMode = { viewModel.toggleDarkMode() },
+                                sortOption = sortOption,
+                                onSortOptionChange = { viewModel.updateSortOption(it) }
                             )
                         }
                     }

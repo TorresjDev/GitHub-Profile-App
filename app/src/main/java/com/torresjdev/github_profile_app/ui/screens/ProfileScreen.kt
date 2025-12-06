@@ -25,16 +25,25 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -53,6 +62,7 @@ import com.torresjdev.github_profile_app.R
 import com.torresjdev.github_profile_app.model.GitHubProfile
 import com.torresjdev.github_profile_app.model.GitHubRepo
 import com.torresjdev.github_profile_app.ui.GitHubUiState
+import com.torresjdev.github_profile_app.ui.RepoSortOption
 
 /**
  * GitHub Profile Screen
@@ -63,6 +73,8 @@ import com.torresjdev.github_profile_app.ui.GitHubUiState
  * @param onRetry Callback to retry the search action
  * @param isDarkMode Whether the UI is in dark mode
  * @param onToggleDarkMode Callback to toggle the dark mode
+ * @param sortOption The current repository sort option
+ * @param onSortOptionChange Callback to update the sort option
  * @param modifier Modifier for styling
  */
 @Composable
@@ -74,6 +86,8 @@ fun ProfileScreen(
     onRetry: () -> Unit,
     isDarkMode: Boolean,
     onToggleDarkMode: () -> Unit,
+    sortOption: RepoSortOption,
+    onSortOptionChange: (RepoSortOption) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.fillMaxSize()) {
@@ -104,7 +118,9 @@ fun ProfileScreen(
                 if (uiState is GitHubUiState.Success) {
                     ProfileContent(
                         profile = uiState.profile,
-                        repos = uiState.repos
+                        repos = uiState.repos,
+                        sortOption = sortOption,
+                        onSortOptionChange = onSortOptionChange
                     )
                 }
             }
@@ -244,15 +260,25 @@ private fun ErrorContent(
  * Profile Content for success state of the UI.
  * @param profile The GitHub profile
  * @param repos The list of GitHub repositories
+ * @param sortOption The current sort option for repositories
+ * @param onSortOptionChange Callback to update the sort option
  * @param modifier Modifier for styling
- * @receiver Modifier for styling
  */
 @Composable
 private fun ProfileContent(
     profile: GitHubProfile,
     repos: List<GitHubRepo>,
+    sortOption: RepoSortOption,
+    onSortOptionChange: (RepoSortOption) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Sort repositories based on selected option
+    val sortedRepos = when (sortOption) {
+        RepoSortOption.STARS -> repos.sortedByDescending { it.stargazersCount }
+        RepoSortOption.RECENT -> repos.sortedByDescending { it.updatedAt }
+        RepoSortOption.NAME -> repos.sortedBy { it.name.lowercase() }
+    }
+
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
@@ -263,19 +289,90 @@ private fun ProfileContent(
             ProfileHeader(profile)
         }
 
-        // Repositories Section Title
+        // Repositories Section Title with Sort Dropdown
         item {
             Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Public Repositories (${profile.publicRepos})",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+                SortDropdown(
+                    selectedOption = sortOption,
+                    onOptionSelected = onSortOptionChange
+                )
+            }
+        }
+
+        // Repository List (sorted)
+        items(sortedRepos) { repo ->
+            RepoCard(repo)
+        }
+    }
+}
+
+/**
+ * Sort dropdown for selecting repository sort order.
+ * @param selectedOption The currently selected sort option
+ * @param onOptionSelected Callback when a new option is selected
+ * @param modifier Modifier for styling
+ */
+@Composable
+private fun SortDropdown(
+    selectedOption: RepoSortOption,
+    onOptionSelected: (RepoSortOption) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box(modifier = modifier) {
+        // Dropdown trigger button
+        TextButton(onClick = { expanded = true }) {
             Text(
-                text = "Public Repositories (${profile.publicRepos})",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
+                text = when (selectedOption) {
+                    RepoSortOption.STARS -> "⭐ Stars"
+                    RepoSortOption.RECENT -> "🕐 Recent"
+                    RepoSortOption.NAME -> "🔤 Name"
+                },
+                style = MaterialTheme.typography.labelLarge
+            )
+            Icon(
+                imageVector = Icons.Default.KeyboardArrowDown,
+                contentDescription = "Sort options"
             )
         }
 
-        // Repository List
-        items(repos) { repo ->
-            RepoCard(repo)
+        // Dropdown menu with sort options
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            DropdownMenuItem(
+                text = { Text("⭐ Stars") },
+                onClick = {
+                    onOptionSelected(RepoSortOption.STARS)
+                    expanded = false
+                }
+            )
+            DropdownMenuItem(
+                text = { Text("🕐 Recent") },
+                onClick = {
+                    onOptionSelected(RepoSortOption.RECENT)
+                    expanded = false
+                }
+            )
+            DropdownMenuItem(
+                text = { Text("🔤 Name") },
+                onClick = {
+                    onOptionSelected(RepoSortOption.NAME)
+                    expanded = false
+                }
+            )
         }
     }
 }
