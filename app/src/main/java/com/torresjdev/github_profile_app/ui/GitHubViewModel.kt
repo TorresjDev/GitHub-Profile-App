@@ -13,12 +13,26 @@ import kotlinx.coroutines.launch
 import java.io.IOException
 import retrofit2.HttpException
 
+/**
+ * Represents the state of the GitHub UI.
+ * It can be either loading, showing data, or showing an error.
+ * @property GitHubUiState.Loading: The UI is currently loading data.
+ * @property GitHubUiState.Success: The UI has successfully loaded data.
+ * @property GitHubUiState.Error: An error occurred while loading data.
+ * @constructor Creates a new instance of GitHubUiState.
+ *
+ */
 sealed interface GitHubUiState {
     data class Success(val profile: GitHubProfile, val repos: List<GitHubRepo>) : GitHubUiState
     object Error : GitHubUiState
     object Loading : GitHubUiState
 }
 
+/**
+ * Represents the view model for the GitHub UI.
+ * It is responsible for managing the data and state for the UI.
+ * @constructor Creates a new instance of GitHubViewModel.
+ */
 class GitHubViewModel : ViewModel() {
     // Manual dependency injection
     private val repository: GitHubRepository = NetworkGitHubRepository()
@@ -29,10 +43,20 @@ class GitHubViewModel : ViewModel() {
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
+    private val _isDarkMode = MutableStateFlow(false)
+    val isDarkMode: StateFlow<Boolean> = _isDarkMode.asStateFlow()
+
+    // Toggle dark mode
+    fun toggleDarkMode() {
+        _isDarkMode.value = !_isDarkMode.value
+    }
+
+    // Update search query
     fun updateSearchQuery(query: String) {
         _searchQuery.value = query
     }
 
+    // Search for user
     fun searchUser() {
         val query = _searchQuery.value.trim()
         if (query.isNotEmpty()) {
@@ -40,6 +64,7 @@ class GitHubViewModel : ViewModel() {
         }
     }
 
+    // Fetch GitHub data
     fun getGitHubData(username: String) {
         viewModelScope.launch {
             _uiState.value = GitHubUiState.Loading
