@@ -3,6 +3,16 @@ package com.torresjdev.github_profile_app.model
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+/**
+ * Serializable data class representing a GitHub repository.
+ *
+ * @property name The name of the repository.
+ * @property description The description of the repository.
+ * @property language The programming language used in the repository.
+ * @property stargazersCount The number of stars the repository has received.
+ * @property htmlUrl The URL of the repository's HTML page.
+ * @constructor Creates a new instance of [GitHubRepo].
+ */
 @Serializable
 data class GitHubRepo(
     val name: String,
